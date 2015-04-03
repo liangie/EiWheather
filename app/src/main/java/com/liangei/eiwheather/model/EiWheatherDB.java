@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.liangei.eiwheather.db.EiWheatherOpenHelper;
 
@@ -53,6 +54,7 @@ public class EiWheatherDB {
             ContentValues values = new ContentValues();
             values.put("province_name",province.getProvinceName());
             values.put("province_code",province.getProvinceCode());
+            values.put("province_name_py",province.getProvinceNamePY());
             db.insert("Province",null,values);
         }
     }
@@ -69,10 +71,11 @@ public class EiWheatherDB {
                 province.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
                 province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_code")));
+                province.setProvinceNamePY(cursor.getString(cursor.getColumnIndex("province_name_py")));
                 list.add(province);
             }while(cursor.moveToNext());
         }
-
+        Log.d("choo", "list:\n"+list.toString());
         return list;
     }
 
@@ -85,6 +88,7 @@ public class EiWheatherDB {
             values.put("city_name",city.getCityName());
             values.put("city_code",city.getCityCode());
             values.put("province_id",city.getProvinceId());
+            values.put("city_name_py",city.getCityNamePY());
             db.insert("City",null,values);
         }
     }
@@ -101,6 +105,7 @@ public class EiWheatherDB {
                 city.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
                 city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+                city.setCityNamePY(cursor.getString(cursor.getColumnIndex("city_name_py")));
                 city.setProvinceId(provinceId);
                 list.add(city);
             }while(cursor.moveToNext());
@@ -117,6 +122,7 @@ public class EiWheatherDB {
             values.put("county_name",county.getCountyName());
             values.put("county_code",county.getCountyCode());
             values.put("city_id",county.getCityId());
+            values.put("county_name_py",county.getCountyNamePY());
             db.insert("County",null,values);
         }
     }
@@ -133,9 +139,27 @@ public class EiWheatherDB {
                 county.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 county.setCountyName(cursor.getString(cursor.getColumnIndex("county_name")));
                 county.setCountyCode(cursor.getString(cursor.getColumnIndex("county_code")));
+                county.setCountyNamePY(cursor.getString(cursor.getColumnIndex("county_name_py")));
                 county.setCityId(cityId);
+                list.add(county);
             }while(cursor.moveToNext());
         }
         return list;
+    }
+
+    /**
+     * （测试用，临时方法）
+     * 在退出程序的时候，清除数据库中的数据
+     * @param tableName
+     */
+    public void clearFeedTable(String tableName){
+        String sql = "DELETE FROM " + tableName + ";";
+        db.execSQL(sql);
+        revertSeq(tableName);
+    }
+
+    public void revertSeq(String tableName){
+        String sql = "update sqlite_sequence set seq = 0 where name = '" + tableName + "';";
+        db.execSQL(sql);
     }
 }

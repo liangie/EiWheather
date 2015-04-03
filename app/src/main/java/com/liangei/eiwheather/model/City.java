@@ -9,6 +9,8 @@ public class City {
     private String cityCode;
     private int provinceId;
 
+    private String cityNamePY;//市名的拼音
+
     public int getId() {
         return id;
     }
@@ -39,5 +41,13 @@ public class City {
 
     public void setProvinceId(int provinceId) {
         this.provinceId = provinceId;
+    }
+
+    public String getCityNamePY() {
+        return cityNamePY;
+    }
+
+    public void setCityNamePY(String cityNamePY) {
+        this.cityNamePY = cityNamePY;
     }
 }

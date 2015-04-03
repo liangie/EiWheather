@@ -9,6 +9,8 @@ public class County {
     private String countyCode;
     private int cityId;
 
+    private String countyNamePY;//县名的拼音
+
     public int getId() {
         return id;
     }
@@ -39,5 +41,13 @@ public class County {
 
     public void setCityId(int cityId) {
         this.cityId = cityId;
+    }
+
+    public String getCountyNamePY() {
+        return countyNamePY;
+    }
+
+    public void setCountyNamePY(String countyNamePY) {
+        this.countyNamePY = countyNamePY;
     }
 }
