@@ -1,5 +1,8 @@
 package com.liangei.eiwheather.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -8,16 +11,28 @@ import com.liangei.eiwheather.model.County;
 import com.liangei.eiwheather.model.EiWheatherDB;
 import com.liangei.eiwheather.model.Province;
 
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by LIANG_000 on 2015/4/1.
  */
 public class Utility {
 
+
+    /**
+     * 根据城市ID返回json格式的城市天气预报信息
+     * 返回基本信息：http://www.weather.com.cn/data/sk/101010100.html
+     * use this 返回较详细信息：http://www.weather.com.cn/adat/cityinfo/101010100.html
+     * 返回详细信息：http://m.weather.com.cn/data/101010100.html
+     * 返回实时天气信息：http://www.weather.com.cn/adat/sk/101220607.html
+     */
 
     /**
      * 解析xml数据中的省份信息，并插入数据库中
@@ -202,5 +217,41 @@ public class Utility {
             }
         }
         return false;
+    }
+
+    /**
+     * 解析服务器返回的json数据。并将解析出的数据存储到本地
+     */
+    public static void handleWeatherResponse(Context context, String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONObject weatherInfo = jsonObject.getJSONObject("weatherinfo");
+            String cityName = weatherInfo.getString("city");
+            String weatherCode = weatherInfo.getString("cityid");
+            String temp1 = weatherInfo.getString("temp1");
+            String temp2 = weatherInfo.getString("temp2");
+            String weatherDesp = weatherInfo.getString("weather");
+            String publishTime = weatherInfo.getString("ptime");
+            saveWeatherInfo(context, cityName,weatherCode,temp1,temp2,weatherDesp,publishTime);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 将由JSON解析后的天气信息存储到SharePreferences文件中
+     */
+    public static void saveWeatherInfo(Context context, String cityName, String weatherCode, String temp1, String temp2, String weatherDesp, String publishTime){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日 'at' HH:mm:ss", Locale.CHINA);
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        editor.putBoolean("city_selected",true);
+        editor.putString("city_name",cityName);
+        editor.putString("weather_code",weatherCode);
+        editor.putString("temp1",temp1);
+        editor.putString("temp2",temp2);
+        editor.putString("weather_desp",weatherDesp);
+        editor.putString("publish_time",publishTime);
+        editor.putString("current_date",sdf.format(new Date()));
+        editor.commit();
     }
 }
